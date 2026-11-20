@@ -64,8 +64,8 @@
       <div class="issue-list">
   {% for issue in view.issues %}
     <details><summary><span class="dot"></span><b>{{ issue.detail }}</b><span class="issue-line">{{ issue.key or '源记录' }} / {{ issue.line }}</span></summary>
-    <dl><dt>原因码</dt><dd>{{ issue.code }}</dd>{% if issue.minutes is defined %}<dt>影响</dt><dd>{{ issue.minutes }} 分钟</dd>{% endif %}</dl>
-    {% for key,label in [('lines','相关行'),('passes','权益版本'),('windows','营业窗'),('peers','相交预订')] %}
+    <dl><dt>原因码</dt><dd>{{ issue.code }}</dd>{% if issue.minutes is defined %}<dt>影响</dt><dd>{{ issue.minutes }} 分钟</dd>{% endif %}{% if issue.class is defined %}<dt>类别</dt><dd>{{ '核对' if issue.class == 'reconcile' else '源行' }}</dd>{% endif %}{% if issue.dataset %}<dt>数据集</dt><dd>{{ {'calendar':'营业窗','passes':'权益','bookings':'事件','changes':'结转'}.get(issue.dataset, issue.dataset) }}</dd>{% endif %}</dl>
+    {% for key,label in [('lines','相关行'),('source_lines','原始源行'),('passes','权益版本'),('windows','营业窗'),('peers','相交预订')] %}
       {% if issue.get(key) %}<div class="reference">{{ label }}　{{ issue[key]|join('、') }}</div>{% endif %}
     {% endfor %}
     {% if issue.raw is defined %}<pre>{{ issue.raw|tojson(indent=2) }}</pre>{% endif %}

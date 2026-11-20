@@ -10,6 +10,10 @@ MESSAGES = {
     'STALE_EVENT': '修订号已被后续事件替代', 'AFTER_CLOSE': '事件晚于结账截点',
     'BAD_CHAIN': '没有完整的新订与改单链', 'COLLISION': '同场冰面时段重叠',
     'CANCELED': '该预订已撤销', 'LIMIT': '权益分钟额用尽',
+    'LATE_CONFLICT': '晚到事件与本班版本冲突', 'LATE_STALE': '晚到事件不晚于本班版本',
+    'AFTER_CANCEL': '撤销后仍有后续事件',
+    'UNBALANCED': '分钟或权益未对平', 'INCOMPLETE_SOURCE': '源批次不完整',
+    'DEFERRED': '仅见下班后事件', 'SHEET_PENDING': '该批次未含复核单，请重跑同批',
 }
 
 

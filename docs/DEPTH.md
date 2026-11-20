@@ -13,6 +13,7 @@
 | M5 有效折抵 | 点击跨日片段检查扣券和自付分钟 | `/desk/debit` | `app/modules/debit/partition.py` `app/modules/debit/service.py` | `tests/test_debit.py` |
 | M6 时券对账 | 复核分钟等式和差额，展开争议证据 | `/desk/balance` | `app/modules/balance/rules.py` `app/modules/balance/service.py` | `tests/test_balance.py` |
 | M7 值班归档 | 复算原输入、切换历史批次和下载凭证 | `/desk/archive` | `app/modules/archive/handler.py` `app/modules/archive/service.py` | `tests/test_archive.py` |
+| M8 换班复核单 | 按预订查看本班结论、下班待办与原记录，导出同一复核单 | `/desk/handover` | `app/modules/handover/rules.py` `app/modules/handover/service.py` | `tests/test_handover.py` |
 
 ## 陷阱登记
 
@@ -28,8 +29,13 @@
 | TRAP-23 | 夜场西冰 22:15 恰好换类 | 两个窗口重复收权 | 半开区间 | `app/modules/calendar/rules.py` | `tests/test_calendar.py::test_adjacent_boundary_has_single_owner` |
 | TRAP-25 | 夜场飞雪两张券期间重叠 | 随意扣券责任 | 停扣重叠片段并给出双方权益行 | `app/modules/passes/rules.py` | `tests/test_passes.py::test_overlapping_entitlements_hold_minutes` |
 | TRAP-26 | 夜场 `0042` 撤销跨过当班截点 | 改写已交接预订 | 延后事件待下班，保持本班有效订单 | `app/modules/changes/rules.py` | `tests/test_changes.py::test_late_cancellation_cannot_rewrite_published_view` |
+| TRAP-27 | 21:55 改单到 22:20 才出现在输入 | 按源行顺序漏记截点前占用 | 按发生时刻入本班，晚投递只作注记 | `app/modules/changes/rules.py` | `tests/test_handover.py::test_change_stamped_before_cutoff_counts_even_when_row_arrives_late` |
+| TRAP-28 | 23:02 撤销在交接前已到达 | 直接改写已交财务的本班账 | 保留本班结论，撤销列入下班待办 | `app/modules/changes/rules.py` `app/modules/handover/rules.py` | `tests/test_handover.py::test_cancellation_after_cutoff_does_not_rewrite_this_shift` |
+| TRAP-29 | 同批重跑 | 重复累加下班待办 | 待办按源行派生固定编号，重跑同批不新增 | `app/modules/handover/rules.py` | `tests/test_handover.py::test_rerunning_same_batch_does_not_add_todos` |
+| TRAP-30 | 源批次不完整或未核对 | 出具正式复核单 | 区分源行与核对两类原因，未达标只出临时单 | `app/modules/handover/rules.py` | `tests/test_handover.py::test_conflict_is_retained_and_blocks_formal_sheet` |
 
 ## 对账规则
 
 - 夜场有效预订分钟 340 = 扣券 70 + 自付 155 + 豁免 30 + 争议 85。
 - 券的各版本核发量逐项等于已用与剩余之和。有效累计扣券 = 当班权益已用量。
+- 换班复核单按预订给出本班结论、下班待办和原始源行；争议行保留，正式单须源批次完整且分钟、权益对平。

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block table_title %}换班复核单{% endblock %}
+{% block feature %}
+<section class="panel proof handover-sheet">
+  <div class="panel-top">
+    <h2>{{ view.status }}</h2>
+    <a class="solid" href="{{ url_for('archive.export_handover', run_id=run.id) }}">导出本批复核单</a>
+  </div>
+  <dl class="proof-list">
+    <dt>批次</dt><dd>{{ run.id[:12] }}</dd>
+    <dt>截点</dt><dd>{{ view.cutoff[:16]|replace('T',' ') }} UTC+08</dd>
+    <dt>本班有效</dt><dd>{{ view.metrics['本班有效'] }} 单 · 共 {{ view.metrics['复核单行'] }} 行</dd>
+    <dt>下班待办</dt><dd>{{ view.todos|length }} 条</dd>
+    <dt>源行</dt><dd>{{ '均可采信' if view.complete else '有待核原始行' }}</dd>
+    <dt>核对</dt><dd>{{ '已对平' if view.reconciled else '未对平' }}</dd>
+    <dt>复核单摘要</dt><dd>{{ view.sheet_sha256 }}</dd>
+  </dl>
+  {% if view.formal %}
+  <p class="sealed" role="status">本班已核对，本复核单可与凭证一并交下班接续。</p>
+  {% else %}
+  <div class="hold" role="note">
+    <b>尚未出具正式复核单</b>
+    <p>原因 {{ view.reasons|length }} 项，均在右侧「当班复核」保留源行，须核对或补正后重跑同批。</p>
+  </div>
+  {% endif %}
+</section>
+
+<section class="panel proof">
+  <div class="panel-top"><h2>下班待办</h2><span class="badge">{{ view.todos|length }} 条</span></div>
+  <ol class="todo-list" id="todo-list">
+    {% for todo in view.todos %}
+    <li data-todo="{{ todo.id }}"><b>{{ todo.key }}</b> {{ todo.text }}
+      <span class="issue-line">源行 {{ todo.line }}{% if todo.revision %} · 修订 {{ todo.revision }}{% endif %}{% if todo.code %} · {{ todo.code }}{% endif %}</span></li>
+    {% else %}<li class="empty">无下班待办。</li>{% endfor %}
+  </ol>
+</section>
+{% endblock %}

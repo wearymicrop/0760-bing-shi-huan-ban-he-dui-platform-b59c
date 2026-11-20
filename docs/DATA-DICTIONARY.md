@@ -12,6 +12,9 @@
 | `debit.rows` | `windows`,`passes`,`peers`,`codes` | 决定结果的营业行、权益行、冲突订单行、原因码 |
 | `balance.tally` | `booked`,`difference`,`voucher_difference` | 有效预订分钟、分钟差、券已用差 |
 | `manifest` | `version`,`created_at`,`cutoff`,`elapsed_ms`,`input_sha256`,`result_sha256` | 规则版、封存时刻、结算截点、耗时和两种摘要 |
+| `handover.rows` | `key`,`state`,`state_label`,`conclusion`,`record`,`todo`,`booked`,`disputed`,`codes` | 按预订的本班结论、原始记录摘要、下班待办和分钟 |
+| `handover.todos` | `id`,`key`,`kind`,`line`,`revision`,`code`,`text` | 下班待办；`id` 由源行派生，重跑同批不变 |
+| `handover` | `formal`,`complete`,`reconciled`,`status`,`reasons`,`disputes`,`sheet_sha256` | 是否正式复核单、两类未达标原因及复核单摘要 |
 
 ## 裁决
 
@@ -20,5 +23,7 @@
 以午夜、营业窗端点、同场同队券版本端点切分每单。每段只可得到一种营业分类。两个异类营业窗重叠，或多个权益同时有效，相交片段进入争议。两个预订共同占用同一冰面时，两单一并待核对。收费段依开场时间逐段使用权益预算，按源版本全班累计。该段余额不够的部分记自付，豁免不扣权益。相同时点以冰面和订单号稳定排序。
 
 每个有效预订分钟拆为扣券、自付、豁免、争议。每券的核发分钟等于已用加剩余。复核账按单检查，另检查全场扣券总数和券已用总数。
+
+换班复核单按预订组织：本班结论只取截点内最后一次非撤销版本，`23:02` 一类下班事件列入下班待办而不改写本班账；`21:55` 一类截点前改单即使晚投递也计入本班。争议记录保留原记录与原因码。只有源批次完整（无解析失败、重复或断裂源行）且分钟、权益对平时 `formal` 才为真，否则 `status` 为临时单。
 
 凭证导出一个 JSON，内含原始交换文本、完整阶段结论及运行清单。`input_sha256` 对上传原字节计算，`result_sha256` 对排序字段的 UTF-8 JSON 结果计算。样例中的现金列是待自付分钟，价格由票务系统维护。

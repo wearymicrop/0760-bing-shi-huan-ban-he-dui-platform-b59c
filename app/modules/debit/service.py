@@ -8,7 +8,13 @@ from .partition import boundaries, collisions
 LABELS = {'debit': '扣券', 'cash': '自付', 'waived': '豁免', 'disputed': '争议'}
 
 
-def allocate(events, windows, versions):
+def allocate(decisions, windows, versions):
+    """Split every in-force booking into debit, cash, waived and disputed minutes.
+
+    ``decisions`` keeps canceled and quarantined bookings too, so their
+    evidence survives even though they contribute no minutes.
+    """
+    events = [decision.current for decision in decisions if decision.current is not None]
     collided = collisions(events)
     usage = Counter()
     totals = Counter({key: 0 for key in LABELS})

@@ -4,6 +4,7 @@ from .modules.bookings import service as bookings
 from .modules.calendar import service as calendar
 from .modules.changes import service as changes
 from .modules.debit import service as debit
+from .modules.handover import service as handover
 from .modules.passes import service as passes
 
 
@@ -13,9 +14,17 @@ def process(raw):
     windows, calendar_view = calendar.load(data['windows'])
     versions, pass_view = passes.load(data['passes'])
     events, booking_view = bookings.load(data['events'])
-    active, change_view = changes.replay(events, cutoff)
-    all_issues = [issue for view in (calendar_view, pass_view, booking_view, change_view) for issue in view['issues']]
-    debit_view = debit.allocate(active, windows, versions)
-    balance_view = balance.reconcile(active, debit_view, all_issues)
-    return {'calendar': calendar_view, 'passes': pass_view, 'bookings': booking_view, 'changes': change_view,
-            'debit': debit_view, 'balance': balance_view}
+    decisions, change_view = changes.decide(events, cutoff)
+    all_issues = [issue | {'dataset': name}
+                  for name, view in (('calendar', calendar_view), ('passes', pass_view),
+                                     ('bookings', booking_view), ('changes', change_view))
+                  for issue in view['issues']]
+    debit_view = debit.allocate(decisions, windows, versions)
+    balance_view = balance.reconcile(
+        [decision.current for decision in decisions if decision.current], debit_view, all_issues)
+    handover_view = handover.review(decisions, debit_view, balance_view, all_issues, cutoff,
+                                    raw_events=data['events'],
+                                    booking_issues=booking_view['issues'])
+    return {'calendar': calendar_view, 'passes': pass_view, 'bookings': booking_view,
+            'changes': change_view, 'debit': debit_view, 'balance': balance_view,
+            'handover': handover_view}

@@ -13,7 +13,9 @@ def data(module, run_id):
         raise InputError('BAD_ROW', 404)
     path = current_app.config['DB_PATH']
     bundle = service.get(path, run_id)[1] if run_id else service.record(path, source.sample('night'))[0]
-    stage = service.register_view(path, bundle) if module == 'archive' else bundle['views'][module]
+    stage = service.register_view(path, bundle) if module == 'archive' else bundle['views'].get(module)
+    if stage is None:
+        raise InputError('SHEET_PENDING', 409)
     return bundle, stage
 
 

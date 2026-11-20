@@ -38,3 +38,16 @@ def export_run(run_id):
     document = bundle | {'original_json': raw.decode('utf-8')}
     return Response(manifest.encode(document), mimetype='application/json',
                     headers={'Content-Disposition': f'attachment; filename="rink-{run_id[:12]}.json"'})
+
+
+@routes.get('/api/runs/<run_id>/handover')
+def export_handover(run_id):
+    raw, bundle = service.get(current_app.config['DB_PATH'], run_id)
+    if 'handover' not in bundle['views']:
+        raise InputError('SHEET_PENDING', 409)
+    document = {'id': run_id, 'kind': 'handover',
+                'manifest': bundle['manifest'], 'handover': bundle['views']['handover'],
+                'original_json': raw.decode('utf-8')}
+    body = manifest.encode(document)
+    return Response(body, mimetype='application/json',
+                    headers={'Content-Disposition': f'attachment; filename="handover-{run_id[:12]}.json"'})

@@ -92,6 +92,14 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #eef4f3; paddi
 .equation small { display: block; font: 12px var(--font-ui); color: var(--muted); }
 .equation i { font-style: normal; color: #5d7b80; }
 .seal-actions { display: flex; gap: 9px; }
+.proof-list { grid-template-columns: max-content minmax(0,1fr); margin-bottom: 12px; }
+.hold { border-left: 4px solid #a45f44; background: #f7eae2; padding: 9px 12px; }
+.hold b { display: block; margin-bottom: 4px; }
+.hold p { margin: 0; color: var(--muted); }
+.sealed { border-left: 4px solid #63977b; background: #e7f1e9; padding: 9px 12px; margin: 0; }
+.todo-list { margin: 0; padding-inline-start: 22px; display: grid; gap: 7px; }
+.todo-list .empty { color: var(--muted); }
+.handover-sheet .panel-top h2 { color: #174f64; }
 footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 5px; color: var(--muted); font-size: 12px; padding-block: 14px; margin-top: 20px; border-top: 1px solid var(--line); }
 @media (max-width: 930px) {
   body { grid-template-columns: 135px minmax(0,1fr); }
